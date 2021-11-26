@@ -1,6 +1,6 @@
 df<-read.csv("https://raw.githubusercontent.com/mdaiyub/Diabetes-Prediction/main/Dataset/diabetes.csv")
 attach(df)
-model<-glm(Outcome~Pregnancies+Glucose+BloodPressure+SkinThickness+Insulin+BMI+DiabetesPedigreeFunction+Age, data=df, family=binomial)
+model<-glm(factor(Outcome)~Pregnancies+Glucose+BloodPressure+SkinThickness+Insulin+BMI+DiabetesPedigreeFunction+Age, data=df, family=binomial)
 summary(model)
 
 backward<-step(model, direction="backward", trace=FALSE)
