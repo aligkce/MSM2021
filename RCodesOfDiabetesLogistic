@@ -1,0 +1,32 @@
+df<-read.csv("https://raw.githubusercontent.com/mdaiyub/Diabetes-Prediction/main/Dataset/diabetes.csv")
+attach(df)
+model<-glm(Outcome~Pregnancies+Glucose+BloodPressure+SkinThickness+Insulin+BMI+DiabetesPedigreeFunction+Age, data=df, family=binomial)
+summary(model)
+
+backward<-step(model, direction="backward", trace=FALSE)
+summary(backward)
+
+predict(backward, df, type="response")
+
+library(ResourceSelection)
+hoslem<-hoslem.test(Outcome, fitted(backward), g=10)
+hoslem
+
+anova(backward, update(backward,~1), test="Chisq")
+
+probabilities<-predict(backward, type="response")
+thresh<- 0.5
+diabetes<-cut(Outcome, breaks=c(-Inf,thresh,+Inf), labels=c("diabetolmadı", "diabetoldu"))
+diabeteshat<-cut(probabilities, breaks=c(-Inf, thresh, Inf), labels=c("diabetolmadı", "diabetoldu"))
+cTab<-table(diabetes,diabeteshat)
+cTab
+sum(diag(cTab))/sum(cTab)
+
+plot(backward, which = 4, id.n=3)
+
+library(pROC)
+roc <- roc(response = diabetes,predictor=probabilities,auc=TRUE,auc.polygon=TRUE) 
+plot(roc, legacy.axes = TRUE)
+
+roc$auc
+
